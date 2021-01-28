@@ -1,7 +1,7 @@
 /**
- * ol-ext - A set of cool extensions for OpenLayers (ol) in node modules structure
+ * @meecode/ol-ext - A set of cool extensions for OpenLayers (ol) in node modules structure
  * @description ol3,openlayers,popup,menu,symbol,renderer,filter,canvas,interaction,split,statistic,charts,pie,LayerSwitcher,toolbar,animation
- * @version v3.1.17
+ * @version v3.1.21
  * @author Jean-Marc Viglino
  * @see https://github.com/Viglino/ol-ext#,
  * @license BSD-3-Clause
@@ -11353,14 +11353,14 @@ ol.control.Timeline = function (options) {
     }.bind(this));
     // Trigger scroll event
     var scrollListener = null;
-    this._scrollDiv.addEventListener('scroll', function () {
+    this._scrollDiv.addEventListener('scroll', function (event) {
         this._setScrollLeft();
         if (scrollListener) {
             clearTimeout(scrollListener);
             scrollListener = null;
         }
         scrollListener = setTimeout(function () {
-            var dateEnd = this.getDate('end');
+            var dateEnd = this.getDate();
             var updateFinishedDate = this._programmaticallySetDate;
             var yearEqual = dateEnd.getFullYear() === updateFinishedDate.getFullYear();
             var monthEqual = dateEnd.getMonth() === updateFinishedDate.getMonth();
@@ -11371,7 +11371,9 @@ ol.control.Timeline = function (options) {
                     type: 'scroll',
                     date: this.getDate(),
                     dateStart: this.getDate('start'),
-                    dateEnd: this.getDate('end')
+                    dateEnd: this.getDate('end'),
+                    initialDateStart: this._programmaticallySetDate,
+                    originalEvent: event
                 });
             } else {
                 if (dateEqual) {
@@ -11379,7 +11381,9 @@ ol.control.Timeline = function (options) {
                         type: 'dateUpdated',
                         date: this.getDate(),
                         dateStart: this.getDate('start'),
-                        dateEnd: this.getDate('end')
+                        dateEnd: this.getDate('end'),
+                        initialDateStart: this._programmaticallySetDate,
+                        originalEvent: event
                     });
                     this._updatingDate = false;
                     this._initializing = false;
@@ -11649,7 +11653,7 @@ ol.control.Timeline.prototype.refresh = function (zoom, first) {
         type: 'scroll',
         date: this.getDate(),
         dateStart: this.getDate('start'),
-        dateEnd: this.getDate('end')
+        dateEnd: this.getDate('end'),
     });
 };
 /** Get offset given a date
@@ -11825,6 +11829,8 @@ ol.control.Timeline.prototype.setDate = function (feature, options) {
             scrollLeft += ol.ext.element.outerWidth(this._scrollDiv) / 2 - ol.ext.element.getStyle(this._scrollDiv, 'marginLeft') / 2;
         } else if (options.position === 'end') {
             scrollLeft -= ol.ext.element.outerWidth(this._scrollDiv) / 2 - ol.ext.element.getStyle(this._scrollDiv, 'marginLeft') / 2;
+        } else {
+            scrollLeft += this._intervalDiv.clientWidth / 2;
         }
         this._setScrollLeft(scrollLeft);
         if (options.anim === false) this._scrollDiv.classList.remove('ol-move');
@@ -11873,7 +11879,7 @@ ol.control.Timeline.prototype.roundDate = function (d, stick) {
  * @param {string} stick sticking option to stick date to: 'mn', 'hour', 'day', 'month', default no stick
  * @return {Date}
  */
-ol.control.Timeline.prototype.getDate = function (position, stick) {
+ol.control.Timeline.prototype.getDate = function (position, stick = 'day') {
     var pos;
     if (!stick) stick = position;
     switch (position) {
@@ -11899,7 +11905,6 @@ ol.control.Timeline.prototype.getDate = function (position, stick) {
         }
     }
     var d = this._getDateFromOffset(this._getScrollLeft() + pos);
-    d = this.roundDate(d, stick);
     return new Date(d);
 };
 /** Round number to
