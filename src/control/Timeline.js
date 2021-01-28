@@ -125,8 +125,9 @@ var ol_control_Timeline = function (options) {
                     this.dispatchEvent({
                         type: 'dateUpdated',
                         date: this.getDate(),
-                        dateStart: this.getDate('start'),
-                        dateEnd: this.getDate('end')
+                        dateStart: this.getDate('start', 'day'),
+                        dateEnd: this.getDate('end', 'day'),
+                        originalDateStart: this._programmaticallySetDate
                     });
                     this._updatingDate = false;
                     this._initializing = false;
@@ -656,7 +657,7 @@ ol_control_Timeline.prototype.roundDate = function (d, stick) {
  * @param {string} stick sticking option to stick date to: 'mn', 'hour', 'day', 'month', default no stick
  * @return {Date}
  */
-ol_control_Timeline.prototype.getDate = function (position, stick) {
+ol_control_Timeline.prototype.getDate = function (position, stick = 'day') {
     var pos;
     if (!stick) stick = position;
     switch (position) {

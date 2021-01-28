@@ -1,3 +1,7 @@
+# Custom adaptions for ol-ext library
+
+Thanks to the author [Viglio](https://github.com/Viglino/ol-ext) and his contributors for the great work. Original license and links attached for more information.
+
 # ol-ext
 *Cool extensions for [OpenLayers](https://github.com/openlayers/openlayers) (ol)*.
 
