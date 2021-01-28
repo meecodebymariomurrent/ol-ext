@@ -107,7 +107,7 @@ var ol_control_Timeline = function (options) {
             scrollListener = null;
         }
         scrollListener = setTimeout(function () {
-            const dateEnd = this.getDate('start');
+            const dateEnd = this.getDate();
             const updateFinishedDate = this._programmaticallySetDate;
             const yearEqual = dateEnd.getFullYear() === updateFinishedDate.getFullYear();
             const monthEqual = dateEnd.getMonth() === updateFinishedDate.getMonth();
@@ -688,7 +688,6 @@ ol_control_Timeline.prototype.getDate = function (position, stick = 'day') {
         }
     }
     var d = this._getDateFromOffset(this._getScrollLeft() + pos);
-    d = this.roundDate(d, stick);
     return new Date(d);
 };
 
