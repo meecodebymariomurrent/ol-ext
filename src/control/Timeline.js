@@ -100,14 +100,14 @@ var ol_control_Timeline = function (options) {
 
     // Trigger scroll event
     var scrollListener = null;
-    this._scrollDiv.addEventListener('scroll', function () {
+    this._scrollDiv.addEventListener('scroll', function (event) {
         this._setScrollLeft();
         if (scrollListener) {
             clearTimeout(scrollListener);
             scrollListener = null;
         }
         scrollListener = setTimeout(function () {
-            const dateEnd = this.getDate('end');
+            const dateEnd = this.getDate('start');
             const updateFinishedDate = this._programmaticallySetDate;
             const yearEqual = dateEnd.getFullYear() === updateFinishedDate.getFullYear();
             const monthEqual = dateEnd.getMonth() === updateFinishedDate.getMonth();
@@ -118,16 +118,19 @@ var ol_control_Timeline = function (options) {
                     type: 'scroll',
                     date: this.getDate(),
                     dateStart: this.getDate('start'),
-                    dateEnd: this.getDate('end')
+                    dateEnd: this.getDate('end'),
+                    initialDateStart: this._programmaticallySetDate,
+                    originalEvent: event
                 });
             } else {
                 if (dateEqual) {
                     this.dispatchEvent({
                         type: 'dateUpdated',
                         date: this.getDate(),
-                        dateStart: this.getDate('start', 'day'),
-                        dateEnd: this.getDate('end', 'day'),
-                        originalDateStart: this._programmaticallySetDate
+                        dateStart: this.getDate('start'),
+                        dateEnd: this.getDate('end'),
+                        initialDateStart: this._programmaticallySetDate,
+                        originalEvent: event
                     });
                     this._updatingDate = false;
                     this._initializing = false;
@@ -425,7 +428,7 @@ ol_control_Timeline.prototype.refresh = function (zoom, first) {
         type: 'scroll',
         date: this.getDate(),
         dateStart: this.getDate('start'),
-        dateEnd: this.getDate('end')
+        dateEnd: this.getDate('end'),
     });
 };
 
@@ -607,6 +610,8 @@ ol_control_Timeline.prototype.setDate = function (feature, options) {
             scrollLeft += ol_ext_element.outerWidth(this._scrollDiv) / 2 - ol_ext_element.getStyle(this._scrollDiv, 'marginLeft') / 2;
         } else if (options.position === 'end') {
             scrollLeft -= ol_ext_element.outerWidth(this._scrollDiv) / 2 - ol_ext_element.getStyle(this._scrollDiv, 'marginLeft') / 2;
+        } else {
+            scrollLeft += this._intervalDiv.clientWidth / 2;
         }
         this._setScrollLeft(scrollLeft);
         if (options.anim === false) this._scrollDiv.classList.remove('ol-move');
